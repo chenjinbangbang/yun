@@ -1,7 +1,7 @@
 <template>
     <div class="chart">
         <el-dialog title="当前区域拓扑图" :visible.sync="visible" :closeOnClickModal="false">
-            <topology height='400px' width='100%' :info='topology'></topology>
+            <topology height='400px' width='100%' :info='inter'></topology>
         </el-dialog>
         <div class="show-temp sp">
             <table>
@@ -9,13 +9,16 @@
                 <tr v-for="(value, key) in info"><td>{{ key }}</td><td>{{ value }}</td></tr>
             </table>
         </div>
+        <select v-model="inter[0]" class="selects" v-show="spread" >
+            <option v-for="option in options" v-bind:value="option.id">
+                {{ option.regionName }}
+            </option>
+        </select>
         <div ref="myChart" class="myChart"></div>
     </div>
 </template>
 
 <script>
-import axios from "axios";
-import request from "@/utils/request";
 import { maps, choice, stat } from "@/api/chart";
 import "echarts/map/js/china";
 import Topology from "@/components/Charts/topology";
@@ -25,27 +28,25 @@ export default {
   components: { Topology },
   data() {
     return {
-      info: "", //统计信息
-      visible: false, //是否显示拓扑图
-      inter: [], //区域中心信息
-      topology: [], //拓扑图参数
+      info: "",
+      visible: false,
+      inter: [],
       options: "", //保存所有初始内容
       metadataName: "",
       mnsj: "",
       city: [],
-      myMap: {}, //保存城市网点数据
-      geoCoordMap: "" //初始化城市经纬度坐标
+      myMap: {},
+      once: true, //是否第一次加载
+      geoCoordMap: "", //初始化城市经纬度坐标
+      spread: false //是否铺开地图信息
     };
   },
   mounted() {
     choice().then(result => {
-      let self = this;
       this.geoCoordMap = json;
       this.options = result.data.results;
-      this.options.forEach(function(val, n) {
-        self.inter.push([val.region_id, val.location, val.regionName]);
-      });
-      this.inter.forEach(this.getinfo);
+      this.inter.push(result.data.results[0].id);
+      this.inter.push(result.data.results[0].location);
     });
     stat().then(result => {
       this.info = {
@@ -56,12 +57,11 @@ export default {
       };
     });
   },
-  methods: {
-    getinfo(data, n) {
-      let self = this;
-      maps(data[0])
-        .then(result => {
-          //获取城市节点信息
+  watch: {
+    inter: {
+      handler: function() {
+        maps(this.inter[0]).then(result => {
+          let self = this;
           result.data.client_city.forEach(function(val, index) {
             if (val.children) {
               let node = "";
@@ -80,25 +80,19 @@ export default {
               self.myMap[val.city_name] = dom;
             }
           });
-          //添加地图数据
-          this.city.push([
-            result.data.city_name,
-            this.arrangement(result.data)
-          ]);
-          if (this.city.length == this.inter.length) {
+          self.city = [result.data.city_name, this.arrangement(result.data)];
+          if (this.once) {
             this.getCharts();
-          }
-        })
-        .catch(err => {
-          alert("区域中心数据有误！");
-          if (this.city.length == this.inter.length) {
-            this.getCharts();
+            this.once = false;
+          } else {
+            this.change();
           }
         });
-    },
-    nodeinfo() {
-      console.log(this.inter);
-    },
+      },
+      deep: true
+    }
+  },
+  methods: {
     arrangement(data) {
       let citydata = [];
       data.client_city.forEach(function(val, index) {
@@ -127,16 +121,6 @@ export default {
       //     show = ""
       // }
 
-      //返回图例
-      function legend(val) {
-        let arr = [];
-        val.forEach(name => {
-          arr.push(name[0]);
-        });
-        return arr;
-      }
-
-      //返回城市经纬度
       function bccity(name) {
         let coordinate;
         $.each(self.geoCoordMap, function(a, b) {
@@ -147,7 +131,6 @@ export default {
         return coordinate;
       }
 
-      //返回城市关联线
       let convertData = function(data) {
         let res = [];
         for (let i = 0; i < data.length; i++) {
@@ -166,11 +149,11 @@ export default {
         return res;
       };
 
-      let color = ["#fbe52d", "#a6c84c", "#50cfe2", "#ed6a57", "#d78cf8"];
+      let color = ["#fbe52d", "#a6c84c", "#50cfe2"];
 
       let series = [];
-      //渲染地图
-      function serdata(city, i) {
+      //渲染客户端城市及相关效果
+      function city(city) {
         series.push(
           {
             name: city[0],
@@ -186,7 +169,7 @@ export default {
             silent: true,
             lineStyle: {
               normal: {
-                color: color[i + 1],
+                color: color[1],
                 width: 0,
                 curveness: 0.2
               }
@@ -209,7 +192,7 @@ export default {
             silent: true,
             lineStyle: {
               normal: {
-                color: color[i + 1],
+                color: color[1],
                 width: 1,
                 opacity: 0.6,
                 curveness: 0.2
@@ -238,7 +221,7 @@ export default {
             },
             itemStyle: {
               normal: {
-                color: color[i + 1]
+                color: color[1]
               }
             },
             data: city[1].map(dataItem => {
@@ -248,36 +231,55 @@ export default {
               };
               return obj;
             })
-          },
-          {
-            name: city[0],
-            type: "effectScatter",
-            coordinateSystem: "geo",
-            zlevel: 2,
-            label: {
-              normal: {
-                show: true,
-                position: "right",
-                formatter: "{b}"
-              }
-            },
-            symbol: "pin",
-            symbolSize: 20,
-            itemStyle: {
-              normal: {
-                color: color[0]
-              }
-            },
-            data: [
-              {
-                name: city[0],
-                value: bccity(city[0])
-              }
-            ]
           }
         );
       }
-      this.city.forEach(serdata);
+      //返回区域城市
+      function region(city) {
+        if (self.spread) {
+          return [
+            {
+              name: city[0],
+              value: bccity(city[0])
+            }
+          ];
+        } else {
+          let regions = [];
+          self.options.forEach(function(val) {
+            regions.push({
+              name: val.location,
+              value: bccity(val.location),
+              id: val.id
+            });
+          });
+          return regions;
+        }
+      }
+      //渲染区域城市
+      function serdata(city) {
+        series.push({
+          name: city[0],
+          type: "effectScatter",
+          coordinateSystem: "geo",
+          zlevel: 2,
+          label: {
+            normal: {
+              show: true,
+              position: "right",
+              formatter: "{b}"
+            }
+          },
+          symbol: "pin",
+          symbolSize: 20,
+          itemStyle: {
+            normal: {
+              color: color[0]
+            }
+          },
+          data: region(city)
+        });
+      }
+      serdata(this.city);
 
       let option = {
         backgroundColor: "#404a59",
@@ -296,24 +298,14 @@ export default {
             return self.myMap[params.name];
           }
         },
-        legend: {
-          top: 80,
-          left: "center",
-          data: legend(this.city),
-          textStyle: {
-            color: "#fff"
-          },
-          selectedMode: "multiple"
-        },
         geo: {
           map: "china",
           label: {
             emphasis: {
-              show: false,
-              color: "#fff"
+              show: false
             }
           },
-          roam: true,
+          roam: false,
           itemStyle: {
             normal: {
               areaColor: "#323c48",
@@ -329,16 +321,35 @@ export default {
 
       myChart.setOption(option);
 
+      this.change = function() {
+        // if(this.city[1].length == 0){
+        //     show = {
+        //         normal: {
+        //             show: true,
+        //             position: 'right',
+        //             formatter: '{b}'
+        //         }
+        //     }
+        // }else{
+        //     show = ""
+        // }
+        series.splice(0, series.length);
+        city(this.city);
+        serdata(this.city);
+        myChart.setOption({
+          series: series
+        });
+      };
+
       myChart.on("click", function(data) {
-        console.log(data);
-        if (data.name == data.seriesName) {
-          self.inter.forEach((val, n) => {
-            if (val[1].indexOf(data.name) > -1) {
-              self.topology.splice(0, self.topology.length);
-              self.visible = true;
-              self.topology = JSON.parse(JSON.stringify(val));
-            }
-          });
+        if (!self.spread) {
+          self.inter.splice(0, 1, data.data.id);
+          self.spread = true;
+        }
+        if (data.name == data.seriesName && self.spread) {
+          self.visible = true;
+          self.inter.pop();
+          self.inter.push(data.name);
         }
       });
     }

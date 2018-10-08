@@ -3,7 +3,6 @@
 </template>
 
 <style lang="scss">
-
 </style>
 
 <script>
@@ -18,16 +17,17 @@ export default {
   },
   mounted() {},
   watch: {
-    para: function() {
-      this.para[1](this.para[0], this.length, this.para[2]).then(result => {
-        this.origin = result.data[this.info[0]];
+    para: {
+      handler: function() {
         if (this.once) {
+          this.origin = this.para;
           this.getCharts();
           this.once = false;
         } else {
           this.change();
         }
-      });
+      },
+      deep: true
     }
   },
   methods: {
@@ -198,41 +198,16 @@ export default {
       myChart.setOption(option, true);
 
       this.change = function() {
+        this.origin[2] = this.origin[2].concat(this.para[0]);
         myChart.setOption({
           series: [
             {
-              name: tuli[0],
-              data: self.origin[0]
-            },
-            {
-              name: tuli[1],
-              data: self.origin[1]
-            },
-            {
               name: tuli[2],
-              data: self.origin[2]
+              data: this.origin[2]
             }
           ]
         });
       };
-
-      setInterval(function() {
-        self.length = self.origin[2].length;
-        if (self.para[0].length == 0) {
-          self.para[0] = self.length;
-        }
-        self.para[1](self.para[0], self.length, self.para[2]).then(result => {
-          self.origin[2] = self.origin[2].concat(result.data[self.info[0]][0]);
-          myChart.setOption({
-            series: [
-              {
-                name: tuli[2],
-                data: self.origin[2]
-              }
-            ]
-          });
-        });
-      }, 300000);
     }
   }
 };

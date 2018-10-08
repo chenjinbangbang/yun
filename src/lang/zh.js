@@ -8,6 +8,8 @@ export default {
         metadata: '区域中心监控',
         gateway: '存储代理监控',
         monitor: '本机监控',
+        metalist:'区域中心列表',
+        treemap:'区域中心结构',
 
         regionHome: '区域中心管理',
         region: '区域中心列表',
@@ -151,6 +153,8 @@ export default {
         log_server_portMsg: '服务器日志端口不能为空',
         fileMsg: '请上传excel文件',
 
+        streetMsg: '详细地址不能输入特殊字符',
+
         id: '编号',
         site_id: '网点ID',
         regionName: '区域名称',
@@ -165,8 +169,8 @@ export default {
         heartbeat_interval: '心跳间隔（s）',
         upload_scan_interval: '扫描需要上传文件间隔（s）',
         clear_scan_interval: '扫描需要清理文件间隔（天）',
-        console_log_level: '控制台日志',
-        file_log_level: '文件日志',
+        console_log_level: '控制台日志级别',
+        file_log_level: '文件日志级别',
         is_log_to_server: '	是否打开服务器日志',
         log_server_ip: '服务器日志ip',
         log_server_port: '服务器日志端口',
@@ -220,7 +224,7 @@ export default {
         search: '搜索操作人，格式按空格分隔',
         toTime: '至',
         startTime: '开始日期',
-        endTime: '开始日期',
+        endTime: '结束日期',
 
         id: '编号',
         username: '操作人',
@@ -324,7 +328,8 @@ export default {
         resetPwd: '重置密码',
         publish: '发布',
         draft: '草稿',
-        confirm: '确定'
+        confirm: '确定',
+        subserver: '元服务器'
     },
     errorLog: {
         tips: '请点击右上角bug小图标',

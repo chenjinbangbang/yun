@@ -53,8 +53,9 @@ const user = {
       //console.log(decrypt(password));
 
       return new Promise((resolve, reject) => {
-        loginByUsername(username, password).then(response => {             
-          const data = response
+        loginByUsername(username, password).then(response => {       
+          const data = response.data
+          console.log(data.access_token)      
           commit('SET_TOKEN', data.access_token)
           commit('SET_RTOKEN', data.refresh_token)         
           commit('SET_EXTIME', Date.now()+data.expires_in*1000)

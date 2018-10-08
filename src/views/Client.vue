@@ -32,7 +32,7 @@
                         <el-input-number v-model="dataForm.transfer_time" :min="0" :max="60*60*24*365" clearable></el-input-number>
                     </el-form-item>
                     <el-form-item :label="$t('client.clear_time')" prop="clear_time">
-                        <el-input-number v-model="dataForm.clear_time" :min="0" :max="60*60*24*365" clearable></el-input-number>
+                        <el-input-number v-model="dataForm.clear_time" :min="0" :max="365" clearable></el-input-number>
                     </el-form-item>
                     <el-form-item :label="$t('client.heartbeat_interval')" prop="heartbeat_interval">
                         <el-input-number v-model="dataForm.heartbeat_interval" :min="0" :max="60*60*24*365" clearable></el-input-number>
@@ -41,7 +41,7 @@
                         <el-input-number v-model="dataForm.upload_scan_interval" :min="0" :max="60*60*24*365" clearable></el-input-number>
                     </el-form-item>
                     <el-form-item :label="$t('client.clear_scan_interval')" prop="clear_scan_interval">
-                        <el-input-number v-model="dataForm.clear_scan_interval" :min="0" :max="60*60*24*365" clearable></el-input-number>
+                        <el-input-number v-model="dataForm.clear_scan_interval" :min="0" :max="365" clearable></el-input-number>
                     </el-form-item>
                     <el-form-item :label="$t('client.console_log_level')" prop="console_log_level">
                         <el-select v-model="dataForm.console_log_level" clearable>
@@ -55,14 +55,14 @@
                     </el-form-item>
                     <el-form-item :label="$t('client.is_log_to_server')" prop="is_log_to_server">
                         <el-radio-group v-model="dataForm.is_log_to_server">
-                          <el-radio :label="'true'">是</el-radio>
-                          <el-radio :label="'false'">否</el-radio>
+                          <el-radio :label="true">是</el-radio>
+                          <el-radio :label="false">否</el-radio>
                         </el-radio-group>
                     </el-form-item>
-                    <el-form-item :label="$t('client.log_server_ip')" prop="log_server_ip" v-if="dataForm.is_log_to_server === 'true'">
+                    <el-form-item :label="$t('client.log_server_ip')" prop="log_server_ip" v-if="dataForm.is_log_to_server">
                         <el-input v-model="dataForm.log_server_ip" clearable></el-input>
                     </el-form-item>
-                    <el-form-item :label="$t('client.log_server_port')" prop="log_server_port" v-if="dataForm.is_log_to_server === 'true'">
+                    <el-form-item :label="$t('client.log_server_port')" prop="log_server_port" v-if="dataForm.is_log_to_server">
                         <el-input v-model="dataForm.log_server_port" clearable></el-input>
                     </el-form-item>
                     <el-form-item :label="$t('client.upload_point_in_time')" prop="upload_point_in_time">
@@ -86,13 +86,14 @@
                         <el-upload
                             class="upload-demo"
                             drag
-                            action="https://jsonplaceholder.typicode.com/posts/"
-                            :auto-upload="true"
+                            action=""
+                            :auto-upload="false"
                             :limit="1"
                             :on-exceed="handleExceed"
                             :before-upload="beforeUpload"
                             :on-change="handleChange"
-                            :on-success="hangleSuccess"
+                            :on-success="handleSuccess"
+                            :on-remove="handleRemove"
                             multiple>
                             <i class="el-icon-upload"></i>
                             <div class="el-upload__text" v-html="$t('client.uploadText')"></div>
@@ -117,7 +118,7 @@
                         <el-input-number v-model="dataForm.transfer_time" :min="0" :max="60*60*24*365" clearable></el-input-number>
                     </el-form-item>
                     <el-form-item :label="$t('client.clear_time')" prop="clear_time">
-                        <el-input-number v-model="dataForm.clear_time" :min="0" :max="60*60*24*365" clearable></el-input-number>
+                        <el-input-number v-model="dataForm.clear_time" :min="0" :max="365" clearable></el-input-number>
                     </el-form-item>
                     <el-form-item :label="$t('client.heartbeat_interval')" prop="heartbeat_interval">
                         <el-input-number v-model="dataForm.heartbeat_interval" :min="0" :max="60*60*24*365" clearable></el-input-number>
@@ -126,28 +127,32 @@
                         <el-input-number v-model="dataForm.upload_scan_interval" :min="0" :max="60*60*24*365" clearable></el-input-number>
                     </el-form-item>
                     <el-form-item :label="$t('client.clear_scan_interval')" prop="clear_scan_interval">
-                        <el-input-number v-model="dataForm.clear_scan_interval" :min="0" :max="60*60*24*365" clearable></el-input-number>
+                        <el-input-number v-model="dataForm.clear_scan_interval" :min="0" :max="365" clearable></el-input-number>
                     </el-form-item>
                     <el-form-item :label="$t('client.console_log_level')" prop="console_log_level">
-                        <el-input v-model="dataForm.console_log_level" clearable></el-input>
+                        <el-select v-model="dataForm.console_log_level" clearable>
+                            <el-option v-for="item in log_levels" :label="item" :key="item" :value="item"></el-option>
+                        </el-select>
                     </el-form-item>
                     <el-form-item :label="$t('client.file_log_level')" prop="file_log_level">
-                        <el-input v-model="dataForm.file_log_level" clearable></el-input>
+                        <el-select v-model="dataForm.file_log_level" clearable>
+                            <el-option v-for="item in log_levels" :label="item" :key="item" :value="item"></el-option>
+                        </el-select>
                     </el-form-item>
                     <el-form-item :label="$t('client.is_log_to_server')" prop="is_log_to_server">
                         <el-radio-group v-model="dataForm.is_log_to_server">
-                          <el-radio :label="'true'">是</el-radio>
-                          <el-radio :label="'false'">否</el-radio>
+                          <el-radio :label="true">是</el-radio>
+                          <el-radio :label="false">否</el-radio>
                         </el-radio-group>
                     </el-form-item>
-                    <el-form-item :label="$t('client.log_server_ip')" prop="log_server_ip">
+                    <el-form-item :label="$t('client.log_server_ip')" prop="log_server_ip" v-if="dataForm.is_log_to_server">
                         <el-input v-model="dataForm.log_server_ip" clearable></el-input>
                     </el-form-item>
-                    <el-form-item :label="$t('client.log_server_port')" prop="log_server_port">
+                    <el-form-item :label="$t('client.log_server_port')" prop="log_server_port" v-if="dataForm.is_log_to_server">
                         <el-input v-model="dataForm.log_server_port" clearable></el-input>
                     </el-form-item>
                     <el-form-item :label="$t('client.upload_point_in_time')" prop="upload_point_in_time">
-                        <el-time-picker v-model="dataForm.upload_point_in_time"></el-time-picker>
+                        <el-time-picker v-model="dataForm.upload_point_in_time" value-format="HH:mm:ss"></el-time-picker>
                     </el-form-item>
 
                     <el-form-item>
@@ -181,7 +186,7 @@
               <td>{{config.addTime}}</td>
               <td>{{config.newConfigTime}}</td>
               <td>
-                <p>文件数量：<span class='blue'>{{config.status.num}}</span></p>
+                <p>文件数量：<span class='blue'>{{config.transactions}}</span></p>
               </td>
             </tr>
           </table>
@@ -235,7 +240,7 @@
             <h2>{{generateTitle('client')}}</h2>
             <div class="search">
                 <el-input v-model="search" :placeholder="$t('client.search')" :title="$t('client.search')" prefixIcon="el-icon-search" @keyup.enter.native="handleFilter" clearable></el-input>
-                <el-select v-model="listQuery.searchkeys.regionids" clearable multiple collapse-tags :placeholder="$t('client.chooseRegion')">
+                <el-select v-model="listQuery.searchkeys.regionids" clearable multiple collapse-tags :placeholder="$t('client.chooseRegion')" @change="sss()">
                     <el-option v-for="item in regionNameLists" :label="item.name" :key="item.id" :value="item.id"></el-option>
                 </el-select>
                 <el-button type="primary" @click="handleFilter" icon="el-icon-search">{{$t('table.search')}}</el-button>
@@ -274,9 +279,9 @@
                     </template>
                 </el-table-column>
                 <el-table-column prop="newConfigTime" :label="$t('client.newConfigTime')"></el-table-column>
-                <el-table-column prop="status" :label="$t('client.status')">
+                <el-table-column prop="transactions" :label="$t('client.status')">
                     <template slot-scope="scope">
-                        <p>文件数量： <span class='blue'>{{scope.row.status.num}}</span></p>
+                        <p>文件数量： <span class='blue'>{{scope.row.transactions}}</span></p>
                     </template>
                 </el-table-column>
 
@@ -294,16 +299,22 @@
                 <el-table-column prop="client_ver" :label="$t('client.client_ver')"></el-table-column>
                 <el-table-column prop="config_ver" :label="$t('client.config_ver')"></el-table-column> -->
                 
-                <el-table-column :label="$t('client.actions')" width="240">
+                <el-table-column :label="$t('client.actions')" width="300">
                   <template slot-scope="scope">
                       <div class="action">
                         <el-button type="success" size="mini" @click="moreDetailFn(scope.row.id)" icon="el-icon-view">详细配置</el-button> 
                         <el-button type="danger" size="mini" @click.native.prevent="deleteRow(scope.row.id)" icon="el-icon-delete" v-if='checkRole()'>{{$t('table.delete')}}</el-button>
+                        <el-button size="mini" :loading="bloading" :type="scope.row.status>0?'success':'info'" @click="onoff(scope.row)" plain :title="scope.row.status>0?'点击关闭该服务':'点击开启该服务'">{{scope.row.status>0?'关闭':'开启'}}</el-button>
                       </div>
                       <div class="action">
                         <el-button type="success" size="mini" @click="viewConfig(scope.row.site_id)" icon="el-icon-view">{{$t('client.viewConfig')}}</el-button>
                         <el-button type="primary" size="mini" @click="editRow(scope.row.id)" icon="el-icon-edit" v-if='checkRole()'>{{$t('table.edit')}}</el-button>
+                        <el-button size="mini" :loading="bloading" type="warning" :disabled="!(scope.row.status > 0)" plain @click="onoff(scope.row,2)">重启</el-button>
                       </div>
+                      <!-- <div class="action">
+                        <el-button size="mini" :type="scope.row.status>0?'success':'info'" @click="onoff(scope.row)" plain :title="scope.row.status>0?'点击关闭该服务':'点击开启该服务'">{{scope.row.status>0?'关闭':'开启'}}</el-button>                        
+                        <el-button size="mini" type="warning" :disabled="!(scope.row.status > 0)" plain @click="onoff(scope.row,2)">重启</el-button>
+                      </div> -->
                   </template>
                 </el-table-column>
                 
@@ -382,8 +393,10 @@ import {
   updateBatchClient,
   deleteClient,
   getSite,
-  getStatus
+  getStatus,
+  clientoperate
 } from "@/api/client";
+
 export default {
   name: "client",
   components: {},
@@ -392,6 +405,7 @@ export default {
       //表格数据
       list: [], //表格数据
       total: null, //数据总数
+      bloading: false,
       //表单数据
       dataForm: {
         id: null,
@@ -407,9 +421,9 @@ export default {
         heartbeat_interval: null,
         upload_scan_interval: null,
         clear_scan_interval: null,
-        console_log_level: "",
-        file_log_level: "",
-        is_log_to_server: "true",
+        console_log_level: "DEBUG",
+        file_log_level: "DEBUG",
+        is_log_to_server: true,
         log_server_ip: "",
         log_server_port: null,
         upload_point_in_time: "",
@@ -468,6 +482,16 @@ export default {
             trigger: "change"
           }
         ],
+        street: {
+          validator: rules.streetRule,
+          trigger: 'blur'
+        },
+        console_log_level: {
+          required: true, message: '控制台日志级别不能为空', trigger: 'change'
+        },
+        file_log_level: {
+          required: true, message: '文件日志级别不能为空', trigger: 'change'
+        },
         log_server_ip: [
           {
             required: true,
@@ -538,7 +562,7 @@ export default {
 
           list.forEach(item => {
             this.regionNameLists.push({
-              id: item.id,
+              id: item.region_id,
               name: item.regionName
             });
           });
@@ -575,13 +599,39 @@ export default {
       return true;
     },
     //文件状态改变时的钩子，添加文件，上传成功和上传失败时都会被调用
-    handleChange(file, fileList) {},
-    //文件上传成功时的钩子
-    hangleSuccess(res, file) {
-      //res:{id: 101}, file:上传的文件
-      //let imageUrl = URL.createObjectURL(file.raw);
+    handleChange(file, fileList) {
+      //console.log(file);
       this.dataForm.file = file.raw;
     },
+    //文件上传成功时的钩子
+    handleSuccess(res, file) {
+      //res:{id: 101}, file:上传的文件
+      //let imageUrl = URL.createObjectURL(file.raw);
+      console.log(file);
+      this.dataForm.file = file.raw;
+    },
+    handleRemove(file, fileList) {
+      this.dataForm.file = null;
+    },
+
+    //客户端服务状态管理
+    onoff(item, repeat) {
+      let data = {
+        id: item.region_center_id,
+        site_id: item.site_id,
+        status: repeat ? 2 : item.status > 0 ? 0 : 1
+      };
+      clientoperate(data).then(res => {
+        this.bloading = true;
+        setTimeout(() => {
+          if (res.error_code == 0) {
+            this.getList();
+          }
+          this.bloading = false;
+        }, 3000);
+      });
+    },
+
     //获取中国省市区三级联级联选择器格式化
     getLocations(locations) {
       for (let x of locations) {
@@ -689,19 +739,11 @@ export default {
     getList() {
       this.loading = true;
 
-      //let searchkeys = this.listQuery.searchkeys;
-      //转化clientnames对象
-      if (this.search !== "") {
-        let arr = this.search.split(" ");
-        this.listQuery.searchkeys.clientnames = arr;
-      }
-
       getClientList(this.listQuery).then(res => {
         if (res.error_code === 0) {
           //判断res.data是否为空对象，不为空时执行，为空时数据初始化
           if (JSON.stringify(res.data) !== "{}") {
             let list = res.data.results;
-            console.log(111);
 
             //获取全部省市区域--并处理数据列表中的location和location_id
             this.getLocation(list).then(res => {
@@ -709,8 +751,8 @@ export default {
               this.list = res;
 
               //获取客户端状态--并处理数据列表中的status
-              this.getStatus(this.list).then(res => {
-                this.list = res;
+              //this.getStatus(this.list).then(res => {
+                this.list = JSON.parse(JSON.stringify(res)); //需要解耦，否则状态中的文件数量无法实时渲染到前端
 
                 //把clear_time和clear_scan_interval的秒转化为天
                 this.list.forEach(item => {
@@ -721,7 +763,7 @@ export default {
                     item.clear_scan_interval / (60 * 60 * 24)
                   );
                 });
-              });
+              //});
             });
             this.total = res.data.total;
           } else {
@@ -737,6 +779,15 @@ export default {
     //点击查询
     handleFilter() {
       this.listQuery.page = 1;
+
+      //let searchkeys = this.listQuery.searchkeys;
+      //转化clientnames对象
+      if (this.search === "") {
+        this.listQuery.searchkeys.clientnames = [];
+      } else {
+        let arr = this.search.split(" ");
+        this.listQuery.searchkeys.clientnames = arr;
+      }
       this.getList();
     },
     //每页多少条记录改变
@@ -755,16 +806,16 @@ export default {
         getStatus()
           .then(res => {
             if (res.error_code === 0) {
-              let status = res.data;
+              let statusList = res.data;
 
               list.forEach(item => {
-                item.status = { num: 0 };
-                status.forEach(item1 => {
+                statusList.forEach(item1 => {
                   if (item1.site_id == item.site_id) {
-                    item.status.num = item1.num;
+                    item.file_num = item1.num;
                   }
                 });
               });
+              //console.log(list);
 
               resolve(list);
             }
@@ -791,8 +842,10 @@ export default {
     //点击编辑，获取客户端信息
     editRow(id) {
       getClientInfo({ id }).then(res => {
+
         if (res.error_code === 0) {
           this.dataForm = res.data;
+          console.log(this.dataForm);
 
           //设置location
           this.dataForm.location = [];
@@ -804,6 +857,9 @@ export default {
           this.dataForm.clear_scan_interval = Math.floor(
             this.dataForm.clear_scan_interval / (60 * 60 * 24)
           );
+          this.dataForm.is_log_to_server = this.dataForm.is_log_to_server === 'true' ? true : false
+
+          //console.log(this.dataForm);
 
           this.list.forEach(item => {
             if (this.dataForm.location_id == item.location_id) {
@@ -811,6 +867,7 @@ export default {
                 this.dataForm.location.push(item.value);
               });
             }
+
           });
           //console.log(this.dataForm);
 
@@ -825,11 +882,21 @@ export default {
         if (res.error_code === 0) {
           //console.log(Object.keys(res.data).length);
 
-          if (Object.keys(res.data).length !== 0) {
+          //if (Object.keys(res.data).length !== 0) {
+          if(res.data.total >= 0){
             let configList = res.data.results;
+
+            // configList.forEach(item => {
+            //   statusList.forEach(item1 => {
+            //     if (item1.site_id == item.site_id) {
+            //       item.file_num = item1.num;
+            //     }
+            //   });
+            // });
 
             this.getLocation(configList).then(res => {
               this.configList = res;
+              //console.log(this.configList);
 
               this.configVisible = true;
             });
@@ -880,26 +947,28 @@ export default {
           //保存按钮的加载，禁止用户快速连续点击两次问题
           this.saveLoading = true;
 
+          let dataForm = JSON.parse(JSON.stringify(this.dataForm));
+
           //把location转换成location_id
-          this.dataForm.location_id = this.dataForm.location[
-            this.dataForm.location.length - 1
+          dataForm.location_id = dataForm.location[
+            dataForm.location.length - 1
           ];
 
+          //处理is_log_to_server
+          dataForm.is_log_to_server = dataForm.is_log_to_server ? 'true' : 'false';
+
           //把clear_time和clear_scan_interval的天转化为秒
-          this.dataForm.clear_time = this.dataForm.clear_time * 60 * 60 * 24;
-          this.dataForm.clear_scan_interval =
-            this.dataForm.clear_scan_interval * 60 * 60 * 24;
+          dataForm.clear_time = dataForm.clear_time * 60 * 60 * 24;
+          dataForm.clear_scan_interval =
+            dataForm.clear_scan_interval * 60 * 60 * 24;
+
+            //console.log(dataForm.clear_time);
 
           if (this.operate === 0) {
             //添加数据
-            delete this.dataForm.file;
+            delete dataForm.file;
 
-            //把clear_time和clear_scan_interval的天转化为秒
-            this.dataForm.clear_time = this.dataForm.clear_time * 60 * 60 * 24;
-            this.dataForm.clear_scan_interval =
-              this.dataForm.clear_scan_interval * 60 * 60 * 24;
-
-            createClient(this.dataForm).then(res => {
+            createClient(dataForm).then(res => {
               if (res.error_code === 0) {
                 this.$notify({
                   title: this.$t("table.success"),
@@ -909,15 +978,18 @@ export default {
                 });
                 this.getList();
                 this.resetForm();
-              } else{
+              } else {
                 //保存按钮关闭
                 this.saveLoading = false;
+
+                dataForm.is_log_to_server = true;
               }
             });
           } else if (this.operate === 1) {
             //更新数据
-            delete this.dataForm.file;
-            updateClient(this.dataForm).then(res => {
+            delete dataForm.file;
+            delete dataForm.regionName;
+            updateClient(dataForm).then(res => {
               if (res.error_code === 0) {
                 this.$notify({
                   title: this.$t("table.success"),
@@ -927,22 +999,23 @@ export default {
                 });
                 this.getList();
                 this.resetForm();
-              } else{
+              } else {
                 //保存按钮关闭
                 this.saveLoading = false;
+
+                dataForm.is_log_to_server = true;
               }
             });
           } else if (this.operate === 2) {
             //批量添加数据
-            console.log(this.dataForm.file);
+            //console.log(dataForm);
 
-            this.dataForm = {
-              region_center_id: this.dataForm.region_center_id,
+            dataForm = {
+              region_center_id: dataForm.region_center_id,
               file: this.dataForm.file
             };
-            //console.log(formData.get("file"));
 
-            createBatchClient(this.dataForm).then(res => {
+            createBatchClient(dataForm).then(res => {
               if (res.error_code === 0) {
                 this.$notify({
                   title: this.$t("table.success"),
@@ -952,34 +1025,35 @@ export default {
                 });
                 this.getList();
                 this.resetForm();
-              } else{
-                //保存按钮关闭
-                this.saveLoading = false;
+              } else {
+                //this.dataForm.file = null;
               }
+              //保存按钮关闭
+              this.saveLoading = false;
             });
           } else if (this.operate === 3) {
             //批量修改数据
-            this.dataForm = {
+            dataForm = {
               clientids: this.clientids,
-              region_center_id: this.dataForm.region_center_id,
-              transfer_time: this.dataForm.transfer_time,
-              clear_time: this.dataForm.clear_time,
-              heartbeat_interval: this.dataForm.heartbeat_interval,
-              upload_scan_interval: this.dataForm.upload_scan_interval,
-              clear_scan_interval: this.dataForm.clear_scan_interval,
-              console_log_level: this.dataForm.console_log_level,
-              file_log_level: this.dataForm.file_log_level,
-              is_log_to_server: this.dataForm.is_log_to_server,
-              log_server_ip: this.dataForm.log_server_ip,
-              log_server_port: this.dataForm.log_server_port,
-              xupload_point_in_time: this.dataForm.upload_point_in_time
+              region_center_id: dataForm.region_center_id,
+              transfer_time: dataForm.transfer_time,
+              clear_time: dataForm.clear_time,
+              heartbeat_interval: dataForm.heartbeat_interval,
+              upload_scan_interval: dataForm.upload_scan_interval,
+              clear_scan_interval: dataForm.clear_scan_interval,
+              console_log_level: dataForm.console_log_level,
+              file_log_level: dataForm.file_log_level,
+              is_log_to_server: dataForm.is_log_to_server,
+              log_server_ip: dataForm.log_server_ip,
+              log_server_port: dataForm.log_server_port,
+              upload_point_in_time: dataForm.upload_point_in_time
             };
 
-            console.log(this.dataForm);
+            console.log(dataForm);
 
-            updateBatchClient(this.dataForm).then(res => {
+            updateBatchClient(dataForm).then(res => {
               if (res.error_code === 0) {
-                delete this.dataForm.clientids;
+                delete dataForm.clientids;
                 this.$notify({
                   title: this.$t("table.success"),
                   message: this.$t("client.updateBatchSuccess"),
@@ -988,9 +1062,11 @@ export default {
                 });
                 this.getList();
                 this.resetForm();
-              } else{
+              } else {
                 //保存按钮关闭
                 this.saveLoading = false;
+
+                dataForm.is_log_to_server = true;
               }
             });
           }
@@ -1043,9 +1119,9 @@ export default {
           heartbeat_interval: null,
           upload_scan_interval: null,
           clear_scan_interval: null,
-          console_log_level: "",
-          file_log_level: "",
-          is_log_to_server: "true",
+          console_log_level: "DEBUG",
+          file_log_level: "DEBUG",
+          is_log_to_server: true,
           log_server_ip: "",
           log_server_port: null,
           upload_point_in_time: "",

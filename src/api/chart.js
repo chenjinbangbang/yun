@@ -91,3 +91,39 @@ export function recalcg(data) {
     method: 'post',
   })
 }
+
+//新图表监控
+export function monitorchart(data) {
+  return request({
+    url: '/region-center/chart',
+    method: 'post',
+    data
+  })
+}
+
+//新meta列表
+export function metalist() {
+  return request({
+    url: '/admin/region/metadata/list-info',
+    method: 'get',
+  })
+}
+
+export function treemapmds(para) {
+  return request({
+    url: '/admin/region/treemap/mds?region_id=' + para,
+    method: 'get'
+  })
+}
+export function treemapsgw(para) {
+  return request({
+    url: '/admin/region/treemap/sgw?region_id=' + para,
+    method: 'get',
+  })
+}
+export function treemapnode(para) {
+  return request({
+    url: '/admin/region/treemap/node?region_id=' + para,
+    method: 'get',
+  })
+}

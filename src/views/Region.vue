@@ -4,9 +4,9 @@
         <div class="dataForm">
             <el-dialog  :title="operate === 0 ? $t('region.createRegion') : $t('region.updateRegion')" :visible.sync="visible" :closeOnClickModal="false" :beforeClose="handleClose">
                 <el-form :model="dataForm" ref="dataForm" :rules="rules" labelWidth="150px">
-                    <el-form-item :label="$t('region.id')" prop="id">
-                        <el-input v-model="dataForm.id" v-if="operate === 0"></el-input>
-                        <p v-else>{{dataForm.id}}</p>
+                    <el-form-item :label="$t('region.id')" prop="region_id">
+                        <el-input v-model="dataForm.region_id" v-if="operate === 0"></el-input>
+                        <p v-else>{{dataForm.region_id}}</p>
                     </el-form-item>
                     <el-form-item :label="$t('region.regionName')" prop="regionName">
                         <el-input v-model="dataForm.regionName"></el-input>
@@ -20,12 +20,12 @@
                     <el-form-item :label="$t('region.dbPort')" prop="dbPort">
                         <el-input v-model="dataForm.dbPort"></el-input>
                     </el-form-item>
-                    <el-form-item :label="$t('region.msIp')" prop="msIp">
+                    <!-- <el-form-item :label="$t('region.msIp')" prop="msIp">
                         <el-input v-model="dataForm.msIp"></el-input>
                     </el-form-item>
                     <el-form-item :label="$t('region.msPort')" prop="msPort">
                         <el-input v-model="dataForm.msPort"></el-input>
-                    </el-form-item>
+                    </el-form-item> -->
                     <el-form-item :label="$t('region.status')" prop="status" v-if='operate === 1'>
                         <el-radio-group v-model="dataForm.status">
                             <el-radio :label="1">{{$t('region.use')}}</el-radio>
@@ -41,6 +41,46 @@
             </el-dialog>
         </div>
 
+        <div class="subserver">
+            <el-dialog @close="clearnm" :title="$t('table.subserver')" :visible.sync="subshow" :closeOnClickModal="false">
+              <div class="sub-add" >
+                <el-form :model="newmoni" ref="addmoni" :inline="true" :rules="rules">
+                    <el-form-item label="元服务器id" prop="id">
+                        <el-input v-model="newmoni.id"></el-input>
+                    </el-form-item>
+                    <el-form-item label="元服务器ip" prop="msIp">
+                        <el-input v-model="newmoni.msIp" class="sp"></el-input>
+                    </el-form-item>
+                    <el-form-item label="元服务器端口" prop="msPort">
+                        <el-input v-model="newmoni.msPort"></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                      <el-button type="success" @click="addmoni(newmoni.region_id)">添加</el-button>
+                    </el-form-item>
+                </el-form>
+              </div>
+              <div class="sub-list" >
+                <el-form v-for="(item,index) in moni" :model="item"  :inline="true" :rules="rules" :key="index" ref="upmoni">
+                    <el-form-item label="元服务器id" prop="id">
+                        <el-input v-model="item.id" :disabled="true"></el-input>
+                    </el-form-item>
+                    <el-form-item label="元服务器ip" prop="msIp">
+                        <el-input v-model="item.msIp" class="sp"></el-input>
+                    </el-form-item>
+                    <el-form-item label="元服务器端口" prop="msPort">
+                        <el-input v-model="item.msPort" ></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                      <el-button type="primary" @click="upmoni(item,index)">保存</el-button>
+                      <el-button type="danger" @click="delmoni(item.id,item.region_id,index)">删除</el-button>
+                      <el-button :loading="bloading" :type="item.status>0?'success':'info'" @click="onoff(item)" plain :title="item.status>0?'点击关闭该服务':'点击开启该服务'">{{item.status>0?'关闭':'开启'}}</el-button>
+                      <el-button :loading="bloading" type="warning" :disabled="!(item.status > 0)" plain @click="onoff(item,2)">重启</el-button>
+                    </el-form-item>
+                </el-form>
+              </div>
+            </el-dialog>
+        </div>
+
         <div class="title">
             <h2>{{generateTitle('region')}}</h2>
             <div class="search">
@@ -53,7 +93,7 @@
 
         <main class="lists">
             <el-table :data="list" border style="width:100%" v-loading="loading">
-                <el-table-column prop="id" :label="$t('region.id')" width='80'></el-table-column>
+                <el-table-column prop="region_id" :label="$t('region.id')" width='80'></el-table-column>
                 <el-table-column prop="regionName" :label="$t('region.regionName')"></el-table-column>
                 <!-- <el-table-column :label="$t('region.location')" width="200">
                     <template slot-scope="scope">
@@ -70,13 +110,14 @@
                 </el-table-column>
                 <el-table-column prop="dbIp" :label="$t('region.dbIp')"></el-table-column>
                 <el-table-column prop="dbPort" :label="$t('region.dbPort')"></el-table-column>
-                <el-table-column prop="msIp" :label="$t('region.msIp')"></el-table-column>
-                <el-table-column prop="msPort" :label="$t('region.msPort')"></el-table-column>
+                <!-- <el-table-column prop="msIp" :label="$t('region.msIp')"></el-table-column>
+                <el-table-column prop="msPort" :label="$t('region.msPort')"></el-table-column> -->
                 <el-table-column prop="clientNum" :label="$t('region.clientNum')">
                     <template slot-scope="scope">
-                        <router-link to="/center/client">
+                        <!-- <router-link to="/center/client">
                             <el-button type="text">{{scope.row.clientNum}}</el-button>
-                        </router-link>
+                        </router-link> -->
+                        <span>{{scope.row.clientNum}}</span>
                     </template>
                 </el-table-column>
                 <!-- <el-table-column prop="storageAgencyNum" :label="$t('region.storageAgencyNum')">
@@ -92,10 +133,11 @@
                       <el-tag :type="scope.row.status | statusFilter">{{scope.row.status === 1 ? $t('region.use') : (scope.row.status === 2 ? $t('region.maintain') : $t('region.nonuse'))}}</el-tag>
                     </template>
                 </el-table-column>
-                <el-table-column :label="$t('region.actions')" width="200" v-if='checkRole()'>
+                <el-table-column :label="$t('region.actions')" width="300" v-if='checkRole()'>
                     <template slot-scope="scope">
-                        <el-button type="primary" size="mini" @click="editRow(scope.row.id)" icon="el-icon-edit">{{$t('table.edit')}}</el-button>
-                        <el-button type="danger" size="mini" @click.native.prevent="deleteRow(scope.row.id)" icon="el-icon-delete">{{$t('table.delete')}}</el-button>
+                        <el-button type="success" size="mini" @click="showsub(scope.row.region_id)">{{$t('table.subserver')}}</el-button>
+                        <el-button type="primary" size="mini" @click="editRow(scope.row.region_id)" icon="el-icon-edit">{{$t('table.edit')}}</el-button>
+                        <el-button type="danger" size="mini" @click.native.prevent="deleteRow(scope.row.region_id)" icon="el-icon-delete">{{$t('table.delete')}}</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -120,6 +162,23 @@
 <style lang='scss'>
 .region {
 }
+.subserver {
+}
+.subserver .el-input {
+  width: 100px;
+}
+.subserver .el-input.sp {
+  width: 140px;
+}
+.subserver .el-dialog {
+  width: 1100px;
+}
+.sub-add {
+  border-bottom: 1px solid #ccc;
+}
+.sub-list {
+  padding-top: 20px;
+}
 </style>
 
 <script>
@@ -130,30 +189,35 @@ import {
   getRegionInfo,
   updateRegion,
   deleteRegion,
-  getLocation
+  getLocation,
+  addmetaserver,
+  delmetaserver,
+  upmetaserver,
+  metaserveroperate
 } from "@/api/region";
 export default {
   name: "region",
   components: {},
   data() {
     return {
-      //表格数据
+      newmoni: { region_id: null, id: null, msIp: "", msPort: "" },
+      bloading: false,
+      moni: [],
       list: [], //表格数据
       total: null, //数据总数
       locationList: [], //区域地址数据
       //表单数据
       dataForm: {
-        id: null,
+        region_id: null,
         regionName: "",
         location: [],
         location_id: null,
         dbIp: "",
         dbPort: "",
-        msIp: "",
-        msPort: "",
         status: 1
       },
       visible: false, //表单显示与隐藏
+      subshow: false, //元服务器显示与隐藏
       regionOptions: [], //中国省市区三级联级联选择器
       editIndex: 0, //点击修改的是哪个索引
       operate: 0, //判断用户是添加（0）还是修改数据（1）
@@ -170,6 +234,14 @@ export default {
       },
       //表单验证
       rules: {
+        region_id: [
+          {
+            required: true,
+            message: this.$t("region.idMsg"),
+            trigger: "blur"
+          },
+          { validator: rules.idRule, trigger: "blur" }
+        ],
         id: [
           {
             required: true,
@@ -266,6 +338,94 @@ export default {
     this.getList();
   },
   methods: {
+    clearnm() {
+      this.$refs.addmoni.resetFields();
+      this.$refs.upmoni.forEach((item, i) => {
+        item.resetFields();
+      });
+    },
+    addmoni(id) {
+      this.$refs.addmoni.validate(valid => {
+        if (valid) {
+          let data = {
+            region_id: id,
+            ms_id: this.newmoni.id,
+            msip: this.newmoni.msIp,
+            msport: this.newmoni.msPort
+          };
+          addmetaserver(data).then(res => {
+            if (res.error_code == 0) {
+              this.getList();
+              this.moni.push(JSON.parse(JSON.stringify(this.newmoni)));
+              this.$refs.addmoni.resetFields();
+            }
+          });
+        }
+      });
+    },
+    upmoni(item, index) {
+      this.$refs.upmoni[index].validate(valid => {
+        if (valid) {
+          let data = {
+            region_id: item.region_id,
+            ms_id: item.id,
+            msip: item.msIp,
+            msport: item.msPort
+          };
+          upmetaserver(data).then(res => {
+            if (res.error_code == 0) {
+              this.getList();
+            }
+          });
+        }
+      });
+    },
+    delmoni(id, region_id, index) {
+      this.$confirm("此操作将永久删除该元服务器, 是否继续?", "警告", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          let data = {
+            id: region_id,
+            ms_id: id
+          };
+          delmetaserver(data).then(res => {
+            if (res.error_code == 0) {
+              this.getList();
+              this.moni.splice(index, 1);
+              this.$message({
+                type: "success",
+                message: "删除成功!"
+              });
+            }
+          });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "取消删除"
+          });
+        });
+    },
+    onoff(item, repeat) {
+      let data = {
+        region_id: item.region_id,
+        ms_id: item.id,
+        status: repeat ? 2 : item.status > 0 ? 0 : 1
+      };
+      metaserveroperate(data).then(res => {
+        this.bloading = true;
+        setTimeout(() => {
+          if (res.error_code == 0) {
+            this.getList();
+            item.status = repeat ? 1 : item.status > 0 ? 0 : 1;
+          }
+          this.bloading = false;
+        }, 3000);
+      });
+    },
     //获取中国省市区三级联级联选择器格式化
     getLocations(locations) {
       for (let x of locations) {
@@ -280,7 +440,7 @@ export default {
           }
           city.push({
             value: y.location_id,
-            label: y.location,
+            label: y.location
             //children: area
           });
         }
@@ -401,9 +561,10 @@ export default {
       this.operate = 0;
     },
     //点击更新数据，获取区域信息
-    editRow(id) {
-      this.editIndex = id;
-      getRegionInfo({ id }).then(res => {
+    editRow(region_id) {
+      console.log(region_id);
+      this.editIndex = region_id;
+      getRegionInfo({ region_id }).then(res => {
         if (res.error_code === 0) {
           this.dataForm = res.data;
 
@@ -416,7 +577,6 @@ export default {
               });
             }
           });
-          console.log(this.dataForm);
 
           this.operate = 1;
           this.visible = true;
@@ -447,7 +607,7 @@ export default {
                 });
                 this.getList();
                 this.resetForm();
-              }else if(res.error_code === 1){
+              } else if (res.error_code === 1) {
                 //保存按钮关闭
                 this.saveLoading = false;
               }
@@ -464,7 +624,7 @@ export default {
                 });
                 this.getList();
                 this.resetForm();
-              }else if(res.error_code === 1){
+              } else if (res.error_code === 1) {
                 //保存按钮关闭
                 this.saveLoading = false;
               }
@@ -474,14 +634,14 @@ export default {
       });
     },
     //删除数据
-    deleteRow(id) {
+    deleteRow(region_id) {
       this.$confirm(this.$t("table.deleteNote"), this.$t("table.note"), {
         confirmButtonText: this.$t("table.delete"),
         cancelButtonText: this.$t("table.cancel"),
         type: "warning"
       })
         .then(() => {
-          deleteRegion({ id }).then(res => {
+          deleteRegion({ region_id }).then(res => {
             if (res.error_code === 0) {
               this.$notify({
                 title: this.$t("table.success"),
@@ -506,20 +666,37 @@ export default {
         this.$refs.dataForm.resetFields();
         //解决第一次点击编辑，初始化问题
         this.dataForm = {
-          id: null,
+          region_id: null,
           regionName: "",
           location: [],
           location_id: null,
           dbIp: "",
           dbPort: "",
-          msIp: "",
-          msPort: "",
           status: 1
         };
       }, 500);
       this.visible = false;
       //保存按钮关闭
       this.saveLoading = false;
+    },
+    //显示元服务器
+    showsub(id) {
+      this.moni.length = 0;
+      this.list.forEach(val => {
+        if (val.region_id == id) {
+          val.metaserver.forEach(data => {
+            this.moni.push({
+              id: data.ms_id,
+              msIp: data.msip,
+              msPort: data.msport,
+              region_id: data.region_id,
+              status: data.status
+            });
+          });
+        }
+      });
+      this.subshow = true;
+      this.newmoni.region_id = id;
     }
   }
 };

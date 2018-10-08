@@ -8,6 +8,8 @@ export default {
         metadata: 'Region Monitoring',
         gateway: 'Storage Agency Monitoring',
         monitor: 'Oneself Monitoring',
+        metalist:'Monitoring List',
+        treemap:'Monitoring Structure',
 
         regionHome: 'Regional Center',
         region: 'Regional Center',
@@ -150,6 +152,8 @@ export default {
         log_server_ipMsg: 'The log server ip cannot be empty',
         log_server_portMsg: 'The log server port cannot be empty',
         fileMsg: 'Please upload the excel file' ,
+
+        streetMsg: 'Special characters cannot be entered in a detailed address',
 
         id: 'ID',
         site_id: 'Site ID',
@@ -305,7 +309,8 @@ export default {
         publish: 'Publish',
         draft: 'Draft',
         delete: 'Delete',
-        confirm: 'Confirm'
+        confirm: 'Confirm',
+        subserver: 'Subserver'
     },
     errorLog: {
         tips: 'Please click the bug icon in the upper right corner',

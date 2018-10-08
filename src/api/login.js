@@ -3,7 +3,8 @@ import request from '@/utils/request'
 
 export function loginByUsername(username, password) {
   const data = {
-    grant_type:"password", 
+    //python不需要
+    //grant_type:"password", 
     username,
     password
   }
@@ -14,10 +15,11 @@ export function loginByUsername(username, password) {
     url: '/oauth/token',
     method: 'post',
     data,
-    auth:{
-      username:process.env.API_ID,
-      password:process.env.API_KEY
-    }
+    //python不需要
+    // auth:{
+    //   username:process.env.API_ID,
+    //   password:process.env.API_KEY
+    // }
   })
 }
 
@@ -33,10 +35,11 @@ export function autoLogin(re_token) {
     url: '/oauth/token',
     method: 'post',
     data,
-    auth:{
-      username:process.env.API_ID,
-      password:process.env.API_KEY
-    }
+    //python不需要
+    // auth:{
+    //   username:process.env.API_ID,
+    //   password:process.env.API_KEY
+    // }
   })
 }
 

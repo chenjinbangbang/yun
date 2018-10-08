@@ -19,7 +19,7 @@ export function getRegionList(data) {
 }
 
 //添加区域
-export function createRegion(data){
+export function createRegion(data){console.log(data)
   return request({
     url: '/admin/region/create',
     method: 'post',
@@ -60,5 +60,41 @@ export function getLocation(){
   return request({
     url: '/admin/locations',
     method: 'post'
+  });
+}
+
+//添加元服务器
+export function addmetaserver(data){
+  return request({
+    url: '/admin/region/addmetaserver',
+    method: 'post',
+    data
+  });
+}
+
+//删除元服务器
+export function delmetaserver(data){
+  return request({
+    url: '/admin/region/deletemetaserver',
+    method: 'post',
+    data
+  });
+}
+
+//更新元服务器
+export function upmetaserver(data){
+  return request({
+    url: '/admin/region/updatemetaserver',
+    method: 'post',
+    data
+  });
+}
+
+//开关元服务器
+export function metaserveroperate(data){
+  return request({
+    url: '/admin/region/metaserveroperate',
+    method: 'post',
+    data
   });
 }

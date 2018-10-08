@@ -82,6 +82,16 @@ let rules = {
     } else {
       callback();
     }
+  },
+
+  //特殊字符验证
+  streetRule(rule, value, callback) {
+    let valReg = /[@#\$%\^&\*]+/g;
+    if (valReg.test(value)) {
+      callback(new Error(i18n.t('client.streetMsg')));
+    } else {
+      callback();
+    }
   }
 
 };

@@ -18,6 +18,7 @@
                     </el-form-item>
                     <el-form-item>
                         <el-button @click="next" >{{$t('table.submit')}} <i class='fa fa-hand-o-right fa-lg'></i></el-button>
+                        <p class="tip blue">若系统未设置邮件发送功能，请联系售后找回，售后电话：400-833-2618</p>
                     </el-form-item>
                 </div>
 
@@ -83,6 +84,7 @@
       i {
         animation: right 1s linear 0s infinite alternate;
       }
+      .tip{ line-height:22px; margin-top:15px;}
     }
   }
   .success {
@@ -155,8 +157,8 @@ export default {
           });
           break;
         case 2:
-          this.$refs.resetForm.validateField("code", valid => {
-            if (!valid) {
+          this.$refs.resetForm.validate(valid => {
+            if (valid) {
               let params = {
                 email: this.resetForm.email,
                 code: this.resetForm.code,

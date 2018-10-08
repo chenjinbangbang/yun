@@ -10,3 +10,12 @@ export function getStorageAgencyList(data) {
     data
   })
 }
+
+//存储代理服务状态管理
+export function sgwoperate(data){
+  return request({
+    url: '/admin/sgw/sgwoperate',
+    method: 'post',
+    data
+  });
+}

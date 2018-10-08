@@ -12,17 +12,20 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
       "/oauth/token": {
-        target: "https://192.168.66.50:8442/",
+        target: "https://192.168.73.147",
+        //target: "https://192.168.64.9:5000",
         "changeOrigin": true,
         "secure": false
       },
       "/admin": {
-        target: "https://192.168.66.50:8442/api/v1/",
+        target: "https://192.168.73.147",
+        //target: "https://192.168.64.9:5000",
         "changeOrigin": true,
         "secure": false
       },
       "/region": {
-        target: "https://192.168.66.50:8442/api/v1/",
+        target: "https://192.168.73.147",
+        //target: "https://192.168.64.9:5000",
         "changeOrigin": true,
         "secure": false
       },
@@ -34,7 +37,8 @@ module.exports = {
     },
 
     // Various Dev Server settings
-    host: 'localhost', // can be overwritten by process.env.HOST
+    host: '0.0.0.0', // can be overwritten by process.env.HOST
+    env: require('./dev.env'),
     port: 8060, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
     autoOpenBrowser: false,
     errorOverlay: true,
@@ -76,7 +80,7 @@ module.exports = {
     // Paths
     assetsRoot: path.resolve(__dirname, '../dist'),
     assetsSubDirectory: 'static',
-    assetsPublicPath: '/',
+    assetsPublicPath: './',
 
     /**
      * Source Maps

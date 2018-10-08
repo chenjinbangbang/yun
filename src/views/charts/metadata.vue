@@ -1,18 +1,12 @@
 <template>
-    <div class="chart">
-    <button class="recalc" @click="recalc">重新获取数据</button>
-    <select v-model="inter[0]" class="selects">
-        <option v-for="option in options" v-bind:value="option.id">
-            {{ option.regionName }}
-        </option>
-    </select>
-    <lines height='300px' width='100%' :info='linecpu' :para='inter'></lines>
-    <lines height='300px' width='100%' :info='linememory' :para='inter'></lines>
-    <lines height='300px' width='100%' :info='linein' :para='inter'></lines>
-    <lines height='300px' width='100%' :info='lineout' :para='inter'></lines>
-    <disk height='300px' width='100%' :info='disk' :para='inter'></disk>
+  <div class="chart">
+    <lines height='300px' width='100%' :info='linecpu' :para='inter.cpu'></lines>
+    <lines height='300px' width='100%' :info='linememory' :para='inter.memory'></lines>
+    <lines height='300px' width='100%' :info='linein' :para='inter.in'></lines>
+    <lines height='300px' width='100%' :info='lineout' :para='inter.out'></lines>
+    <!--<disk height='300px' width='100%' :info='disk' :para='inter'></disk>
     <count height='400px' width='100%' :info='nodes' :para='inter' @city="fileNum" style="float:left"></count>
-    <count height='400px' width='100%' :info='files' :para='cityname' style="float:right"></count>
+    <count height='400px' width='100%' :info='files' :para='cityname' style="float:right"></count> -->
   </div>
 </template>
 
@@ -25,34 +19,10 @@
   background-color: #404a59 !important;
   position: relative;
 }
-.selects,
-.recalc {
-  position: absolute;
-  z-index: 999;
-  right: 20px;
-  top: 20px;
-  background-color: #323c48;
-  color: #fff;
-  outline: none;
-  border-color: #2a333d;
-  min-width: 60px;
-  height: 30px;
-  line-height: 30px;
-  padding-left: 4px;
-  border-radius: 5px;
-  font-size: 14px;
-}
-.recalc {
-  left: 20px;
-  border: none;
-  width: auto;
-  padding: 0 10px;
-  cursor: pointer;
-}
 </style>
 
 <script>
-import { choice, meta, recalcm } from "@/api/chart";
+import { monitorchart } from "@/api/chart";
 import Lines from "@/components/Charts/lines";
 import Disk from "@/components/Charts/disk";
 import Count from "@/components/Charts/count";
@@ -69,30 +39,23 @@ export default {
       disk: ["disk", "磁盘信息", "容量/GB"],
       nodes: ["nodes", "各城市节点数", "节点城市", "节点统计"],
       files: ["files", "节点文件统计", "节点名", "文件统计"],
-      cityname: "",
-      inter: [],
-      options: "",
-      fs: function(lj, cs) {
-        return meta(lj, cs);
-      }
+      inter: ""
     };
   },
   mounted() {
-    choice().then(result => {
-      this.options = result.data.results;
-      this.inter.push(result.data.results[0].id);
-      this.inter.push(this.fs);
+    monitorchart({ id: sessionStorage.getItem('ChartID'), type: sessionStorage.getItem('ChartType') }).then(res => {
+      let self = this;
+      this.inter = res.data;
+      let num = res.data.cpu[2].length;
+      setInterval(function() {
+        monitorchart({ id: sessionStorage.getItem('ChartID'), type: sessionStorage.getItem('ChartType'), length: num }).then(res => {
+          self.inter = res.data;
+          num += res.data.cpu[0].length;
+        });
+      }, 300000);
     });
   },
-  methods: {
-    fileNum(name) {
-      this.cityname = name;
-    },
-    recalc() {
-      recalcm(this.inter[0]).then(result => {});
-      this.inter.push("sign");
-    }
-  }
+  methods: {}
 };
 </script>
 

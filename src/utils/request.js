@@ -8,7 +8,7 @@ import { param } from "@/utils";
 // create an axios instance
 const service = axios.create({
   baseURL: process.env.BASE_API, // api的base_url  
-  timeout: 5000, // request timeout
+  timeout: 20000, // request timeout
   //withCredentials: true
 })
 
@@ -47,8 +47,7 @@ service.interceptors.request.use(config => {
 
 // respone interceptor
 service.interceptors.response.use(
-  response => {
-    
+  response => {    
     if (!response.data.access_token) {
       //console.log(11);
       //if (checkError(response))

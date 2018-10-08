@@ -10,22 +10,27 @@
             <template v-for="item in menuItems" >
                 
                     <el-menu-item :index="item.path + '/chart'" v-if="!item.haschild">
+                      <div>
                         <i :class="item.icon"></i>
-                        <i class="el-icon-arrow-right"></i>
                         <span slot="title">{{generateTitle(item.title)}}</span>
+                        <i class="el-icon-arrow-right"></i>
+                      </div>
+                        
                     </el-menu-item>               
                 
                     <el-submenu :index="item.path" v-if="item.haschild">
                         <template slot="title">
                             <i :class="item.icon"></i>
-                            <i class="el-icon-arrow-right"></i>
                             <span slot="title">{{generateTitle(item.title)}}</span>
+                            <i class="el-icon-arrow-right"></i>
                         </template>
                         <template v-for="child in item.children">
                             <el-menu-item :index="item.path+'/'+child.path">
-                                <i :class="child.icon"></i>
-                                <i class="el-icon-arrow-right"></i>
-                                <span slot="title">{{generateTitle(child.title)}}</span>
+                              <div>
+                                  <i :class="child.icon"></i>
+                                  <span slot="title">{{generateTitle(child.title)}}</span>
+                                  <i class="el-icon-arrow-right"></i>
+                              </div>
                             </el-menu-item>
                         </template>
                     </el-submenu>                
@@ -61,12 +66,10 @@
     li {
       width: 100%;
       border-bottom: 1px solid #333e53;
+      //全部图标
       i {
         color: #fff;
-        &:nth-child(2) {
-          float: right;
-          margin-top: 18px;
-        }
+        //border:1px solid #f00;
       }
     }
     .el-submenu {
@@ -82,8 +85,10 @@
       &:hover > div {
         border-color: #19202c;
       }
-      &.is-opened > div i:nth-child(2) {
-        transform: rotate(90deg); transition: all .3s;
+      //el-submenu图标
+      &.is-opened > div i:nth-child(3) {
+        transform: rotate(90deg);
+        transition: all 0.3s;
       }
       .el-menu-item {
         padding-left: 30px !important;
@@ -93,6 +98,7 @@
       color: #fff;
       border-left: 8px solid #1f2837;
       padding-right: 20px;
+
       &:hover {
         background-color: #233342;
         border-left-color: #f44336;
@@ -103,13 +109,27 @@
         color: #ffd04b;
       }
     }
-    .el-menu-item .fa,
-    .el-submenu .fa {
-      margin-right: 5px;
-      width: 24px;
-      text-align: center;
-      font-size: 18px;
-      vertical-align: middle;
+
+    .el-menu-item,
+    .el-submenu {
+      //需要加div外层，否则布局异常
+      > div {
+        display: flex;
+        align-items: center;
+        .el-icon-arrow-right {
+          margin-left: auto;
+          //float: right;
+          //margin-top: 18px;
+        }
+      }
+      .fa {
+        //border:1px solid #f00;
+        margin-right: 5px;
+        width: 24px;
+        text-align: center;
+        font-size: 18px;
+        vertical-align: middle;
+      }
     }
     .el-submenu__icon-arrow {
       display: none;
@@ -129,8 +149,8 @@ export default {
     };
   },
   computed: {
-    routerIndex(){
-        return this.$route.path; //根据路由实时更新
+    routerIndex() {
+      return this.$route.path; //根据路由实时更新
     }
   },
   created() {

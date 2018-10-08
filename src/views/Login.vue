@@ -25,7 +25,7 @@
                 </el-form-item>
                 <el-form-item>
                     <el-button type="primary" @click="login">{{$t('login.logIn')}}</el-button>
-                    <el-button><router-link to='/findbackpwd'>{{$t('login.forgetPwd')}}</router-link></el-button>
+                    <el-button @click="findbackpwd">{{$t('login.forgetPwd')}}</el-button>
                 </el-form-item>
             </el-form>
         </main>
@@ -44,10 +44,12 @@
   min-height: 100%;
   position: relative;
   //background: url(../assets/images/loginbg.jpg) no-repeat center bottom;
-  display: flex; justify-content:center; align-items:flex-end;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
   .main {
     width: 860px;
-    height:420px;
+    height: 420px;
     //border:1px solid #fff;
     position: relative;
     display: flex;
@@ -58,12 +60,26 @@
       margin: 18px 10px 0 0;
       color: #fff;
     }
-    .title{ color:#fff; flex:1; margin:auto; text-align:center; position:relative; //border:1px solid #fff;
+    .title {
+      color: #fff;
+      flex: 1;
+      margin: auto;
+      text-align: center;
+      position: relative; //border:1px solid #fff;
       //.logo{}
-      h1{ font-size:40px; font-family:SimSun;}
-      p{ width:100%; position:absolute; margin-top:110px;}
+      h1 {
+        font-size: 40px;
+        font-family: SimSun;
+      }
+      p {
+        width: 100%;
+        position: absolute;
+        margin-top: 110px;
+      }
     }
-    .el-form { flex:1; margin-top:70px;
+    .el-form {
+      flex: 1;
+      margin-top: 70px;
       .el-form-item {
         &:nth-child(1),
         &:nth-child(2) {
@@ -79,7 +95,7 @@
       }
       .el-button--primary {
         background-color: #f44336;
-        border-color: #f44336;
+        border-color: #912821;
       }
     }
   }
@@ -113,7 +129,10 @@ export default {
       loginbg: process.env.loginbg,
       title: process.env.title,
       devCo: process.env.devCo,
-      bg: "url("+ require('../assets/images/'+ process.env.loginbg +'') + ") no-repeat center bottom",
+      bg:
+        "url(" +
+        require("../assets/images/" + process.env.loginbg + "") +
+        ") no-repeat center bottom",
       loginForm: {
         username: "",
         password: "",
@@ -133,13 +152,13 @@ export default {
             required: true,
             message: this.$t("user.passwordMsg"),
             trigger: "blur"
-          },
+          }
           //{ trigger: "blur", validator: rules.passwordRule }
         ]
       }
     };
   },
-  created(){
+  created() {
     //console.log(process.env.title);
   },
   methods: {
@@ -163,6 +182,10 @@ export default {
           return false;
         }
       });
+    },
+    //导航到findbackpwd页面
+    findbackpwd() {
+      this.$router.push({ path: "/findbackpwd" });
     }
   }
 };

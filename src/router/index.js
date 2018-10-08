@@ -16,11 +16,13 @@ export const constantRouterMap = [
       { path: '', redirect: 'chart' }
     ]
   },
-  { path: '/status', component: _import('Home'),redirect: '/status/metadata',  meta: {title: 'status',menu_name:'状态监控',ismenu:true,icon:"el-icon-view"},
+  { path: '/status', component: _import('Home'),redirect: '/status/metalist',  meta: {title: 'status',menu_name:'状态监控',ismenu:true,icon:"fa fa-eye"},
       children: [         
-          { path: 'metadata', component:_import('charts/metadata') , meta: {title: 'metadata',menu_name:'metadata监控',ismenu:true,icon:"fa fa-cloud-upload"}},
-          { path: 'gateway', component:_import('charts/gateway') , meta: {title: 'gateway',menu_name:'gateway监控',ismenu:true,icon:"fa fa-code-fork"}},
-          { path: 'monitor', component:_import('charts/monitor') , meta: {title: 'monitor',menu_name:'本机监控',ismenu:true,icon:"fa fa-dashboard"}}                 
+          { path: 'metalist', component:_import('Metalist') , meta: {title: 'metalist',menu_name:'metadata中心',ismenu:true,icon:"fa fa-cloud-upload"}},
+          { path: 'treemap', component:_import('charts/treemap') , meta: {title: 'treemap',menu_name:'区域中心结构',ismenu:false,icon:"fa fa-cloud-upload"}},
+          { path: 'metadata', component:_import('charts/metadata') , meta: {title: 'metadata',menu_name:'metadata监控',ismenu:false,icon:"fa fa-cloud-upload"}},
+          //{ path: 'gateway', component:_import('charts/gateway') , meta: {title: 'gateway',menu_name:'gateway监控',ismenu:true,icon:"fa fa-code-fork"}},
+          //{ path: 'monitor', component:_import('charts/monitor') , meta: {title: 'monitor',menu_name:'本机监控',ismenu:true,icon:"fa fa-dashboard"}}                 
           ]
     },
   {

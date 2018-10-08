@@ -36,12 +36,6 @@ export function createBatchClient(data) {
   formData.append('file', data.file);
   console.log(formData.get("file"));
 
-  // let config = {
-  //   headers: {
-  //     'Content-Type': 'multipart/form-data'
-  //   }
-  // }
-
   return request({
     url: '/admin/client/createBatch',
     method: 'post',
@@ -108,5 +102,15 @@ export function getStatus() {
   return request({
     url: '/admin/client/status',
     method: 'get'
+  });
+}
+
+
+//客户端服务状态管理
+export function clientoperate(data){
+  return request({
+    url: '/admin/client/clientoperate',
+    method: 'post',
+    data
   });
 }

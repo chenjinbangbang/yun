@@ -1,7 +1,7 @@
 'use strict'
 module.exports = {
   NODE_ENV: '"production"',
-  BASE_API: '"/api/v1/"',
+  BASE_API: '""',
   API_ID:'"acme"',
   API_KEY:'"acmesecret"',
   loginbg: '"loginbg.jpg"',

@@ -41,6 +41,9 @@
         </el-dialog>
 
         <div class="title">
+            <!-- <input type="file" ref="file" @change="test">
+            <img :src="img" alt=""> -->
+
             <h2>{{generateTitle('users')}} <el-tag type="warning">{{$t('user.superAdmin')}} </el-tag></h2>
             <div class="search">
                 <el-input v-model="search" :placeholder="$t('user.search')" :title="$t('user.search')" prefixIcon="el-icon-search" @keyup.enter.native="handleFilter" clearable></el-input>
@@ -51,7 +54,7 @@
         </div>
 
         <main class="tableLists">
-            <el-table :data="currentTableLists" border style="width:100%" v-loading="loading">
+            <el-table :data="list" border style="width:100%" v-loading="loading">
                 <!-- <el-table-column prop="id" :label="$t('user.id')" width='60'></el-table-column> -->
                 <el-table-column prop="username" :label="$t('user.username')"></el-table-column>
                 <el-table-column prop="email" :label="$t('user.email')" min-width="200"></el-table-column>
@@ -69,7 +72,7 @@
                 <el-table-column :label="$t('user.actions')" width="300" v-if='checkRole()'>
                     <template slot-scope="scope" v-if="scope.row.username !== 'admin'">
                         <el-button type="primary" size="mini" @click="editRow(scope.row.id)" icon="el-icon-edit">{{$t('table.edit')}}</el-button>
-                        <el-button type="danger" size="mini" @click.native.prevent="deleteRow(scope.row.id)" icon="el-icon-delete">{{$t('table.delete')}}</el-button>
+                        <el-button type="danger" size="mini" @click.native.prevent="deleteRow(scope.row.id)" icon="el-icon-delete" v-if="scope.row.username !== name">{{$t('table.delete')}}</el-button>
                         <el-button type="info" size="mini" @click.native.prevent="resetPwd(scope.row.id)">{{$t('table.resetPwd')}}</el-button>
                     </template>
                 </el-table-column>
@@ -108,11 +111,14 @@ import {
   resetUserPwd,
   deleteUser
 } from "@/api/user";
+import XLSX from 'xlsx';
 export default {
   name: "user",
   components: {},
   data() {
     return {
+      img: "",
+
       list: null, //表格数据
       total: null, //数据总数
       //表单数据
@@ -134,11 +140,12 @@ export default {
       detail: "", //用户详情
       saveLoading: false, //保存按钮加载
       //查询条件
+      tableLists: [], //前端总的查询数据
       currentTableLists: [], //前端分页查询数据
       search: "", //用于把字符串转化为对象内容作为请求数据参数
       listQuery: {
         searchkeys: {
-          username: []
+          usernames: [""]
         },
         page: 1, //当前页
         limit: 10 //一页多少条记录
@@ -196,55 +203,107 @@ export default {
     //   return statusMap[status];
     // }
   },
+  computed: {
+    name() {
+      return this.$store.getters.name;
+    }
+  },
   created() {
     //获取表格数据
     this.getList();
   },
   methods: {
+    //文件测试
+    test() {
+      let self = this;
+      //console.log(this.$refs.file.files[0]);
+      let files = this.$refs.file.files;
+      let fileReader = new FileReader();
+      //reader.readAsDataURL(file); //发起异步请求，转化为base64编码
+      //fileReader.readAsText(file, "utf-8");
+      fileReader.onload = function(ev) {
+        try {
+          var data = ev.target.result,
+            workbook = XLSX.read(data, {
+              type: "binary"
+            }), // 以二进制流方式读取得到整份excel表格对象
+            persons = []; // 存储获取到的数据
+        } catch (e) {
+          console.log("文件类型不正确");
+          return;
+        }
+
+        //表格的表格范围，可用于判断表头是否数量是否正确
+        var fromTo = "";
+        //遍历每张表读取
+        for (var sheet in workbook.Sheets) {
+          if (workbook.Sheets.hasOwnProperty(sheet)) {
+            fromTo = workbook.Sheets[sheet]["!ref"];
+            console.log(fromTo);
+            persons = persons.concat(
+              XLSX.utils.sheet_to_json(workbook.Sheets[sheet])
+            );
+            // break; // 如果只取第一张表，就取消注释这行
+          }
+        }
+
+        console.log(persons);
+      };
+
+      // 以二进制方式打开文件
+      fileReader.readAsBinaryString(files[0]);
+    },
+
     //获取数据
     getList() {
       this.loading = true;
 
-      //转化username对象
-      // if (this.search !== "") {
-      //   let arr = this.search.split(" ");
-      //   this.listQuery.searchkeys.username = arr;
-      // }
-
-      getUserList({ page: 1, limit: 1000 }).then(res => {
+      getUserList(this.listQuery).then(res => {
         if (res.error_code === 0) {
           this.list = res.data.results;
           this.total = res.data.total;
+          this.loading = false;
 
-          this.tableListsChange();
-
-          //this.loading = false;
+          //this.tableListsChange();
         }
       });
     },
     //点击查询
     handleFilter() {
       this.listQuery.page = 1;
-      this.tableListsChange();
-      //this.getList();
+
+      //转化usernames对象
+      if (this.search === "") {
+        this.listQuery.searchkeys.usernames = [""];
+      } else {
+        let arr = this.search.split(" ");
+        this.listQuery.searchkeys.usernames = arr;
+      }
+
+      this.getList();
+      //this.tableListsChange();
     },
     //每页多少条记录改变
     handleSizeChange(val) {
       this.listQuery.limit = val;
-      this.tableListsChange();
-      //this.getList();
+      this.getList();
+      //this.tableListsChange();
     },
     //当前页改变
     handleCurrentChange(val) {
       this.listQuery.page = val;
-      this.tableListsChange();
-      //this.getList();
+      this.getList();
+      //this.tableListsChange();
     },
-    //获取当前分页表格数据
+    //获取当前分页表格数据（前端处理）
     tableListsChange() {
       //转化username正则
       let username = this.search.replace(" ", "|");
       let usernameReg = new RegExp(username);
+
+      this.tableLists = this.list.filter((item, index, self) => {
+        return usernameReg.test(item.username);
+      });
 
       this.currentTableLists = this.list.filter((item, index, self) => {
         return (
@@ -253,6 +312,7 @@ export default {
           usernameReg.test(item.username)
         );
       });
+      this.total = this.tableLists.length;
       this.loading = false;
     },
     //点击添加数据

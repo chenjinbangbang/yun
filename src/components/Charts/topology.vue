@@ -3,7 +3,6 @@
 </template>
 
 <style lang="scss">
-
 </style>
 
 <script>
@@ -14,13 +13,13 @@ export default {
     return {
       mndata: [],
       option: "",
-      zuob:""
+      zuob: ""
     };
   },
   mounted() {
     topo(this.info[0]).then(result => {
       let self = this;
-      result.data.forEach(function(stro) {
+      result.data.results.forEach(function(stro) {
         self.mndata.push(stro.gateway_id);
       });
       this.getCharts();
@@ -31,7 +30,7 @@ export default {
       this.mndata.splice(0, this.mndata.length);
       topo(this.info[0]).then(result => {
         let self = this;
-        result.data.forEach(function(stro) {
+        result.data.results.forEach(function(stro) {
           self.mndata.push(stro.gateway_id);
         });
         this.change();
@@ -60,7 +59,7 @@ export default {
           symbol: nodec,
           name: val,
           y: 200,
-          x: base * z
+          x: self.mndata.length > 1 ? base * z : 500
         };
         let line = {
           symbol: "circle",
@@ -83,9 +82,9 @@ export default {
             label: {
               normal: {
                 show: true,
-                position: "top",
+                position: self.mndata.length > 1 ? "top" : "right",
                 fontSize: "16"
-              }  
+              }
             },
             data: zuob,
             links: relation,
@@ -109,6 +108,11 @@ export default {
         myChart.setOption({
           series: [
             {
+              label: {
+                normal: {
+                  position: self.mndata.length > 1 ? "top" : "right"
+                }
+              },
               data: zuob,
               links: relation
             }
